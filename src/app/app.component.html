@@ -1,0 +1,9 @@
+<div class="app-root-layout">
+    <!-- Header with Engine Selector -->
+    <app-header (engineChange)="activeEngine.set($event)"></app-header>
+
+    <!-- Main Workspace -->
+    <main class="main-content">
+        <app-workspace></app-workspace>
+    </main>
+</div>

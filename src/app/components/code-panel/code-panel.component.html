@@ -1,0 +1,57 @@
+<div class="code-panel-card">
+    <div class="panel-header">
+        <div class="header-left">
+            <span class="panel-dot" [class.obfuscated-dot]="isObfuscated()"></span>
+            <h3 class="panel-title">{{ title() }}</h3>
+            <span class="badge-tag">{{ subtitle() }}</span>
+        </div>
+
+        <div class="header-right">
+            <span class="meta-stat">{{ lineCount() }} lines | {{ charCount() }} chars</span>
+
+            <button (click)="copyCode()" class="action-btn" title="Copy SQL to Clipboard">
+                @if (copied()) {
+                <svg class="action-icon text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span class="text-success">Copied!</span>
+                } @else {
+                <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                <span>Copy</span>
+                }
+            </button>
+
+            <button (click)="clearCode()" class="action-btn text-danger" title="Clear Editor">
+                <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+                <span>Clear</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="editor-container">
+        <!-- Line Numbers Gutter -->
+        <div class="gutter" #gutterRef>
+            @for (num of lineNumbers(); track num) {
+            <span class="line-num">{{ num }}</span>
+            }
+        </div>
+
+        <!-- Syntax Highlighting Editor Wrapper -->
+        <div class="editor-wrapper">
+            <!-- Backdrop Syntax Layer -->
+            <div class="highlight-backdrop" #backdropRef>
+                <pre class="highlight-content" [innerHTML]="highlightedHtml()"></pre>
+            </div>
+
+            <!-- Foreground Interactive Textarea -->
+            <textarea #textareaRef [value]="code()" (input)="onInput($event)" (scroll)="onScroll($event)"
+                [placeholder]="placeholder()" class="sql-textarea" spellcheck="false"></textarea>
+        </div>
+    </div>
+</div>
