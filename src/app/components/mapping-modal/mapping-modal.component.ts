@@ -42,19 +42,13 @@ export class MappingModalComponent {
         return list;
     });
 
-    onBackdropClick(event: MouseEvent): void {
-        if ((event.target as HTMLElement).classList.contains('modal-backdrop')) {
-            this.closeModal.emit();
-        }
-    }
-
     onExportJson(): void {
         const json = this.sqlService.exportMappings();
         const blob = new Blob([json], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `sql-mappings-${new Date().toISOString().slice(0, 10)}.json`;
+        a.download = `obfuscator-mappings-${new Date().toISOString().slice(0, 10)}.json`;
         a.click();
         URL.revokeObjectURL(url);
 

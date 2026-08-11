@@ -1,7 +1,6 @@
 @if (isOpen()) {
-<div class="modal-backdrop" (click)="onBackdropClick($event)">
+<div class="modal-backdrop">
     <div class="modal-dialog shadow-2xl">
-        <!-- Modal Header -->
         <div class="modal-header">
             <div class="header-title">
                 <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -11,10 +10,8 @@
                 <h2>Token Mapping Dictionary</h2>
                 <span class="count-chip">{{ mappings().length }} Tokens Registered</span>
             </div>
-            <button (click)="closeModal.emit()" class="btn-close">✕</button>
         </div>
 
-        <!-- Controls & Filter Toolbar -->
         <div class="modal-toolbar">
             <div class="search-box">
                 <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -63,8 +60,8 @@
                                 {{ item.category === 'string_literal' ? 'String' : 'Identifier' }}
                             </span>
                         </td>
-                        <td class="font-mono text-original">{{ item.original }}</td>
-                        <td class="font-mono text-obfuscated">{{ item.obfuscated }}</td>
+                        <td class="text-original">{{ item.original }}</td>
+                        <td class="text-obfuscated">{{ item.obfuscated }}</td>
                     </tr>
                     } @empty {
                     <tr>
@@ -88,20 +85,12 @@
         <div class="modal-footer">
             <div class="footer-left">
                 <button (click)="onExportJson()" class="btn-secondary" [disabled]="mappings().length === 0">
-                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                        <polyline points="7 10 12 15 17 10" />
-                        <line x1="12" y1="15" x2="12" y2="3" />
-                    </svg>
+                    <i class="fa-solid fa-download"></i>
                     Export JSON
                 </button>
 
                 <label class="btn-secondary file-upload-label">
-                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                        <polyline points="17 8 12 3 7 8" />
-                        <line x1="12" y1="3" x2="12" y2="15" />
-                    </svg>
+                    <i class="fa-solid fa-upload"></i>
                     Import JSON
                     <input type="file" accept=".json" (change)="onImportFile($event)" style="display: none;" />
                 </label>
@@ -109,7 +98,7 @@
 
             <div class="footer-right">
                 <button (click)="closeModal.emit()" class="btn-primary">
-                    Done
+                    Close
                 </button>
             </div>
         </div>

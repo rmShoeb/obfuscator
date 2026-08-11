@@ -1,17 +1,17 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SqlOptionsBarComponent } from '../sql-options-bar/sql-options-bar.component';
 import { CodePanelComponent } from '../code-panel/code-panel.component';
 import { MappingModalComponent } from '../mapping-modal/mapping-modal.component';
 import { SqlObfuscatorService } from '../../services/sql-obfuscator.service';
 import { SqlObfuscationOptions, DEFAULT_SQL_OPTIONS } from '../../models/sql-obfuscator.model';
+import { OptionsBarComponent } from '../options-bar/options-bar.component';
 
 @Component({
     selector: 'app-workspace',
     standalone: true,
     imports: [
         CommonModule,
-        SqlOptionsBarComponent,
+        OptionsBarComponent,
         CodePanelComponent,
         MappingModalComponent
     ],
@@ -21,41 +21,33 @@ import { SqlObfuscationOptions, DEFAULT_SQL_OPTIONS } from '../../models/sql-obf
 export class WorkspaceComponent {
     private sqlService = inject(SqlObfuscatorService);
 
-    readonly originalSql = signal<string>('');
-    readonly obfuscatedSql = signal<string>('');
-
+    readonly originalCode = signal<string>('');
+    readonly obfuscatedCode = signal<string>('');
     readonly sqlOptions = signal<SqlObfuscationOptions>(DEFAULT_SQL_OPTIONS);
     readonly isModalOpen = signal<boolean>(false);
 
     readonly activeMappings = this.sqlService.mappings;
 
-    readonly lastExecStats = signal<{ timeMs: number; tokensMapped: number } | null>(null);
-
     runObfuscate(): void {
-        const raw = this.originalSql();
+        const raw = this.originalCode();
         if (!raw) return;
 
         const res = this.sqlService.obfuscate(raw, this.sqlOptions());
-        this.obfuscatedSql.set(res.resultText);
-        this.lastExecStats.set({
-            timeMs: res.executionTimeMs,
-            tokensMapped: res.totalTokensMapped
-        });
+        this.obfuscatedCode.set(res.resultText);
     }
 
     runDeobfuscate(): void {
-        const masked = this.obfuscatedSql();
+        const masked = this.obfuscatedCode();
         if (!masked) return;
 
         const restored = this.sqlService.deobfuscate(masked);
-        this.originalSql.set(restored);
+        this.originalCode.set(restored);
     }
 
     onClearAll(): void {
-        this.originalSql.set('');
-        this.obfuscatedSql.set('');
+        this.originalCode.set('');
+        this.obfuscatedCode.set('');
         this.sqlService.clearMappings();
-        this.lastExecStats.set(null);
         // Note: sqlOptions is NOT changed, preserving user-selected dialect & toggles
     }
 }

@@ -61,20 +61,6 @@
     font-weight: 600;
 }
 
-.btn-close {
-    background: transparent;
-    border: none;
-    color: #94a3b8;
-    font-size: 1.25rem;
-    cursor: pointer;
-    padding: 0.2rem;
-    transition: color 0.2s;
-}
-
-.btn-close:hover {
-    color: #ffffff;
-}
-
 .modal-toolbar {
     display: flex;
     align-items: center;
@@ -224,10 +210,6 @@
     color: #c084fc;
 }
 
-.font-mono {
-    font-family: 'JetBrains Mono', monospace;
-}
-
 .text-original {
     color: #e2e8f0;
 }
@@ -290,24 +272,6 @@
     margin: 0;
 }
 
-.btn-danger-link {
-    background: rgba(239, 68, 68, 0.12);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    color: #f87171;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 0.4rem 0.75rem;
-    border-radius: 6px;
-    transition: all 0.2s;
-}
-
-.btn-danger-link:hover {
-    background: rgba(239, 68, 68, 0.22);
-    border-color: #ef4444;
-    color: #ffffff;
-}
-
 .btn-primary {
     background: #06b6d4;
     color: #0f172a;
@@ -322,9 +286,4 @@
 
 .btn-primary:hover {
     background: #22d3ee;
-}
-
-.btn-icon {
-    width: 14px;
-    height: 14px;
 }

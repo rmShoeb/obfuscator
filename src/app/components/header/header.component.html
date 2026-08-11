@@ -1,23 +1,8 @@
 <header class="app-header">
     <div class="header-branding">
         <div class="brand-titles">
-            <h1 class="app-title highlight">Obfuscator</h1>
+            <h1 class="app-title">Obfuscator</h1>
             <span class="app-subtitle">Bi-Directional Code & Data Masking</span>
-        </div>
-    </div>
-
-    <div class="header-center">
-        <div class="tool-selector-wrapper">
-            <label class="selector-label">Engine:</label>
-            <div class="custom-select-container">
-                <select [value]="selectedEngine()" (change)="onEngineChange($event)" class="tool-dropdown">
-                    @for (tool of availableTools; track tool.id) {
-                    <option [value]="tool.id" [disabled]="!tool.enabled">
-                        {{ tool.name }} {{ tool.enabled ? '' : ' (' + tool.badge + ')' }}
-                    </option>
-                    }
-                </select>
-            </div>
         </div>
     </div>
 
