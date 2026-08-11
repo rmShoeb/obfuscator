@@ -183,13 +183,7 @@ export class SqlObfuscatorService implements IObfuscatorEngine<SqlObfuscationOpt
     }
 
     exportMappings(): string {
-        const exportData = {
-            app: 'SQL-Obfuscator-Studio',
-            version: '1.0.0',
-            timestamp: new Date().toISOString(),
-            mappings: this.getMappings()
-        };
-        return JSON.stringify(exportData, null, 2);
+        return JSON.stringify(this.getMappings(), null, 2);
     }
 
     importMappings(jsonStr: string): ImportResult {

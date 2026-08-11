@@ -1,61 +1,29 @@
 <div class="workspace-container">
-    <!-- Options Toolbar -->
-    <app-sql-options-bar [options]="sqlOptions()" [mappingCount]="activeMappings().length"
-        (optionsChange)="sqlOptions.set($event)" (openMappingModal)="isModalOpen.set(true)"
-        (clearAll)="onClearAll()"></app-sql-options-bar>
+    <app-options-bar
+        (optionsChange)="sqlOptions.set($event)"
+        (clearAll)="onClearAll()"
+    ></app-options-bar>
 
-    <!-- Execution Status Bar -->
-    @if (lastExecStats()) {
-    <div class="stats-toast fade-in">
-        <div class="toast-content">
-            <span class="stat-badge">
-                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <polyline points="12 6 12 12 16 14" />
-                </svg>
-                {{ lastExecStats()?.timeMs }} ms
-            </span>
-            <span class="stat-badge cyan">
-                {{ lastExecStats()?.tokensMapped }} Tokens Mapped
-            </span>
-            <span class="stat-badge purple">
-                Dialect: {{ sqlOptions().dialect | uppercase }}
-            </span>
-        </div>
-    </div>
-    }
-
-    <!-- Bi-Directional Workspace Layout -->
     <div class="split-workspace">
-        <!-- LEFT PANEL: Original SQL Editor -->
         <div class="panel-wrapper">
-            <app-code-panel title="Original Code" subtitle="" [code]="originalSql()"
-                (codeChange)="originalSql.set($event)" placeholder="Paste or type original code here..."
-                [isObfuscated]="false"></app-code-panel>
+            <app-code-panel
+                title="Original Code"
+                placeholder="Paste or type original code here..."
+                [(code)]="originalCode"
+            ></app-code-panel>
         </div>
 
-        <!-- CENTER COLUMN: Bi-Directional Action Triggers -->
         <div class="action-column">
-            <!-- Left-to-Right Obfuscate Button -->
-            <button (click)="runObfuscate()" class="btn-action btn-obfuscate"
-                title="Parse Left SQL and generate Obfuscated SQL in Right Pane">
+            <button (click)="runObfuscate()" class="btn-action btn-obfuscate">
                 <div class="btn-inner">
                     <span class="action-text">Obfuscate</span>
-                    <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                        <polyline points="12 5 19 12 12 19" />
-                    </svg>
+                    <i class="fa-solid fa-arrow-right-long"></i>
                 </div>
             </button>
 
-            <!-- Right-to-Left Deobfuscate Button -->
-            <button (click)="runDeobfuscate()" class="btn-action btn-deobfuscate"
-                title="Restore Original SQL from Right Pane placeholders">
+            <button (click)="runDeobfuscate()" class="btn-action btn-deobfuscate">
                 <div class="btn-inner">
-                    <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <line x1="19" y1="12" x2="5" y2="12" />
-                        <polyline points="12 19 5 12 12 5" />
-                    </svg>
+                    <i class="fa-solid fa-arrow-left-long"></i>
                     <span class="action-text">Deobfuscate</span>
                 </div>
             </button>
@@ -64,18 +32,23 @@
                 <span class="meta-label">Session Mapping:</span>
                 <span class="meta-val">{{ activeMappings().length }} Keys</span>
             </div>
+
+            <button (click)="isModalOpen.set(true)" class="btn-mapping">See Mapping</button>
         </div>
 
-        <!-- RIGHT PANEL: Obfuscated SQL Editor -->
         <div class="panel-wrapper">
-            <app-code-panel title="Obfuscated Code" subtitle="" [code]="obfuscatedSql()"
-                (codeChange)="obfuscatedSql.set($event)"
+            <app-code-panel title="Obfuscated Code"
                 placeholder="Obfuscated code output will appear here. You can also paste external obfuscated code to de-obfuscate..."
-                [isObfuscated]="true"></app-code-panel>
+                [(code)]="obfuscatedCode"
+            ></app-code-panel>
         </div>
     </div>
 
     <!-- Mapping Dictionary Dialog Modal -->
-    <app-mapping-modal [isOpen]="isModalOpen()" [mappings]="activeMappings()" (closeModal)="isModalOpen.set(false)"
-        (triggerClearAll)="onClearAll()"></app-mapping-modal>
+    <app-mapping-modal
+        [isOpen]="isModalOpen()"
+        [mappings]="activeMappings()"
+        (closeModal)="isModalOpen.set(false)"
+        (triggerClearAll)="onClearAll()"
+    ></app-mapping-modal>
 </div>

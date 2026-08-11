@@ -1,13 +1,11 @@
 <div class="code-panel-card">
     <div class="panel-header">
         <div class="header-left">
-            <span class="panel-dot" [class.obfuscated-dot]="isObfuscated()"></span>
             <h3 class="panel-title">{{ title() }}</h3>
-            <span class="badge-tag">{{ subtitle() }}</span>
         </div>
 
         <div class="header-right">
-            <span class="meta-stat">{{ lineCount() }} lines | {{ charCount() }} chars</span>
+            <span class="meta-stat">{{ charCount() }} chars</span>
 
             <button (click)="copyCode()" class="action-btn" title="Copy SQL to Clipboard">
                 @if (copied()) {
@@ -34,24 +32,11 @@
         </div>
     </div>
 
-    <div class="editor-container">
-        <!-- Line Numbers Gutter -->
-        <div class="gutter" #gutterRef>
-            @for (num of lineNumbers(); track num) {
-            <span class="line-num">{{ num }}</span>
-            }
-        </div>
-
-        <!-- Syntax Highlighting Editor Wrapper -->
-        <div class="editor-wrapper">
-            <!-- Backdrop Syntax Layer -->
-            <div class="highlight-backdrop" #backdropRef>
-                <pre class="highlight-content" [innerHTML]="highlightedHtml()"></pre>
-            </div>
-
-            <!-- Foreground Interactive Textarea -->
-            <textarea #textareaRef [value]="code()" (input)="onInput($event)" (scroll)="onScroll($event)"
-                [placeholder]="placeholder()" class="sql-textarea" spellcheck="false"></textarea>
-        </div>
-    </div>
+    <textarea
+        matInput
+        [(ngModel)]="code"
+        [placeholder]="placeholder()"
+        spellcheck="false"
+    ></textarea>
+    
 </div>
