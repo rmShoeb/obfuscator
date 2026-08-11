@@ -1,11 +1,7 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { SqlDialect, SqlObfuscationOptions, SUPPORTED_SQL_DIALECTS, DEFAULT_SQL_OPTIONS } from '../../models/sql-obfuscator.model';
+import { SqlObfuscationOptions } from '../../models/sql-obfuscator.model';
 import { SUPPORTED_LANGUAGES, LanguageOption } from '../../models/language-config';
 
 @Component({
@@ -13,12 +9,7 @@ import { SUPPORTED_LANGUAGES, LanguageOption } from '../../models/language-confi
     standalone: true,
     imports: [
         CommonModule,
-        MatCheckboxModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatInputModule,
+        FormsModule
     ],
     templateUrl: './options-bar.component.html',
     styleUrl: './options-bar.component.css',
