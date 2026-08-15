@@ -1,7 +1,6 @@
 import { Component, input, computed, signal, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {MatInputModule} from '@angular/material/input';
 
 
 @Component({
@@ -11,8 +10,7 @@ import {MatInputModule} from '@angular/material/input';
     styleUrl: './code-panel.component.css',
     imports: [
         CommonModule,
-        FormsModule,
-        MatInputModule
+        FormsModule
     ]
 })
 export class CodePanelComponent {
