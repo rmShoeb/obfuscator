@@ -1,31 +1,29 @@
-import { Component, input, output, signal, computed, inject } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TokenMapping, TokenCategory } from '../../models/obfuscator.interface';
+import { TokenCategory, TokenMapping } from '../../models/obfuscator.interface';
 import { SqlObfuscatorService } from '../../services/sql-obfuscator.service';
 
 @Component({
     selector: 'app-mapping-modal',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [
+        CommonModule,
+        FormsModule
+    ],
     templateUrl: './mapping-modal.component.html',
     styleUrl: './mapping-modal.component.css',
 })
 export class MappingModalComponent {
-    readonly isOpen = input<boolean>(false);
     readonly mappings = input<TokenMapping[]>([]);
-    readonly closeModal = output<void>();
-    readonly triggerClearAll = output<void>();
-    private sqlService = inject(SqlObfuscatorService);
-
-    searchQuery = '';
     readonly selectedCategory = signal<'all' | TokenCategory>('all');
-    readonly alertMessage = signal<string>('');
-    readonly alertType = signal<'success' | 'error'>('success');
+    private sqlService = inject(SqlObfuscatorService);
+    isModalOpen = signal<boolean>(false);
+    searchQuery = signal<string>('');
 
     readonly filteredMappings = computed(() => {
         let list = this.mappings();
-        const query = this.searchQuery.trim().toLowerCase();
+        const query = this.searchQuery().trim().toLowerCase();
         const cat = this.selectedCategory();
 
         if (cat !== 'all') {
@@ -42,18 +40,28 @@ export class MappingModalComponent {
         return list;
     });
 
-    onExportJson(): void {
-        const json = this.sqlService.exportMappings();
-        const blob = new Blob([json], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `obfuscator-mappings-${new Date().toISOString().slice(0, 10)}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
+    openModal(): void {
+        this.isModalOpen.set(true);
+    }
 
-        this.alertType.set('success');
-        this.alertMessage.set('Mapping dictionary JSON exported successfully.');
+    closeModal(): void {
+        this.isModalOpen.set(false);
+    }
+
+    onExportJson(): void {
+        try {
+            const json = this.sqlService.exportMappings();
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `obfuscator-mappings-${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("An error occurred:", error);
+            // TODO: replace this later with alerting modal
+        }
     }
 
     onImportFile(event: Event): void {
@@ -66,12 +74,9 @@ export class MappingModalComponent {
         reader.onload = (e) => {
             const content = e.target?.result as string;
             const res = this.sqlService.importMappings(content);
-            if (res.success) {
-                this.alertType.set('success');
-                this.alertMessage.set(`Successfully imported ${res.count} token mappings!`);
-            } else {
-                this.alertType.set('error');
-                this.alertMessage.set(res.error || 'Failed to import JSON file.');
+            if (!res.success) {
+                console.error(res.error || 'Failed to import JSON file.');
+                // TODO: replace this later with alerting modal
             }
             inputEl.value = '';
         };
@@ -79,11 +84,7 @@ export class MappingModalComponent {
         reader.readAsText(file);
     }
 
-    onClearAllGlobal(): void {
-        if (confirm('Clear both code panes and reset all token mappings? Selected options will remain unchanged.')) {
-            this.triggerClearAll.emit();
-            this.alertType.set('success');
-            this.alertMessage.set('Cleared code panes and token mappings.');
-        }
+    deleteMappings(): void {
+        this.sqlService.clearMappings();
     }
 }

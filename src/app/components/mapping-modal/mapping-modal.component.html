@@ -1,107 +1,89 @@
-@if (isOpen()) {
-<div class="modal-backdrop">
-    <div class="modal-dialog shadow-2xl">
-        <div class="modal-header">
-            <div class="header-title">
-                <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M4 6h16M4 12h16M4 18h7" />
-                    <circle cx="18" cy="18" r="3" />
-                </svg>
-                <h2>Token Mapping Dictionary</h2>
+<div class="modal" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    [style]="{'display': isModalOpen() ? 'block' : 'none'}" [class.show]="isModalOpen()">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5 header-title" id="staticBackdropLabel">Token Mapping Dictionary</h1>
                 <span class="count-chip">{{ mappings().length }} Tokens Registered</span>
             </div>
-        </div>
 
-        <div class="modal-toolbar">
-            <div class="search-box">
-                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                <input type="text" [(ngModel)]="searchQuery" placeholder="Search token or placeholder..."
-                    class="search-input" />
+            <div class="modal-body modal-background">
+                <div class="row g-2 justify-content-center">
+                    <div class="col-7">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                            <input type="text" [(ngModel)]="searchQuery" class="form-control" placeholder="Search token or placeholder...">
+                        </div>
+                    </div>
+                    <div class="col-1">
+                        <button type="button" class="btn btn-outline-info btn-sm w-100" (click)="selectedCategory.set('all')" [class.active]="selectedCategory() === 'all'">All</button>
+                    </div>
+                    <div class="col-2">
+                        <button type="button" class="btn btn-outline-info btn-sm w-100" (click)="selectedCategory.set('identifier')" [class.active]="selectedCategory() === 'identifier'">Identifiers</button>
+                    </div>
+                    <div class="col-2">
+                        <button type="button" class="btn btn-outline-info btn-sm w-100" (click)="selectedCategory.set('string_literal')" [class.active]="selectedCategory() === 'string_literal'">String Literals</button>
+                    </div>
+                    <div class="col-12">
+                        <div class="table-container">
+                            <table class="mapping-table">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Original Token</th>
+                                        <th>Obfuscated Placeholder</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (item of filteredMappings(); track item.original + item.obfuscated) {
+                                    <tr>
+                                        <td>
+                                            <span class="category-badge" [class]="'cat-' + item.category">
+                                                {{ item.category === 'string_literal' ? 'String' : 'Identifier' }}
+                                            </span>
+                                        </td>
+                                        <td class="text-original">{{ item.original }}</td>
+                                        <td class="text-obfuscated">{{ item.obfuscated }}</td>
+                                    </tr>
+                                    } @empty {
+                                    <tr>
+                                        <td colspan="3" class="empty-state">
+                                            <svg class="empty-icon" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <circle cx="12" cy="12" r="10" />
+                                                <path d="M16 16s-1.5-2-4-2-4 2-4 2" />
+                                                <line x1="9" y1="9" x2="9.01" y2="9" />
+                                                <line x1="15" y1="9" x2="15.01" y2="9" />
+                                            </svg>
+                                            <p>No token mappings found matching current criteria.</p>
+                                        </td>
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Category Filter Chips -->
-            <div class="filter-chips">
-                <button (click)="selectedCategory.set('all')" [class.active]="selectedCategory() === 'all'"
-                    class="chip-btn">All</button>
-                <button (click)="selectedCategory.set('identifier')"
-                    [class.active]="selectedCategory() === 'identifier'" class="chip-btn">Identifiers</button>
-                <button (click)="selectedCategory.set('string_literal')"
-                    [class.active]="selectedCategory() === 'string_literal'" class="chip-btn">Strings</button>
-            </div>
-        </div>
+            <div class="modal-footer">
+                <div class="footer-left">
+                    <button (click)="onExportJson()" class="import-export-btn" [disabled]="mappings().length === 0">
+                        <i class="fa-solid fa-download"></i> Export JSON
+                    </button>
 
-        <!-- Notification Banners -->
-        @if (alertMessage()) {
-        <div class="alert-banner" [class.alert-error]="alertType() === 'error'"
-            [class.alert-success]="alertType() === 'success'">
-            <span>{{ alertMessage() }}</span>
-            <button (click)="alertMessage.set('')" class="alert-dismiss">✕</button>
-        </div>
-        }
-
-        <!-- Mapping Data Table -->
-        <div class="table-container">
-            <table class="mapping-table">
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Original Token</th>
-                        <th>Obfuscated Placeholder</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (item of filteredMappings(); track item.original + item.obfuscated) {
-                    <tr>
-                        <td>
-                            <span class="category-badge" [class]="'cat-' + item.category">
-                                {{ item.category === 'string_literal' ? 'String' : 'Identifier' }}
-                            </span>
-                        </td>
-                        <td class="text-original">{{ item.original }}</td>
-                        <td class="text-obfuscated">{{ item.obfuscated }}</td>
-                    </tr>
-                    } @empty {
-                    <tr>
-                        <td colspan="3" class="empty-state">
-                            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M16 16s-1.5-2-4-2-4 2-4 2" />
-                                <line x1="9" y1="9" x2="9.01" y2="9" />
-                                <line x1="15" y1="9" x2="15.01" y2="9" />
-                            </svg>
-                            <p>No token mappings found matching current criteria.</p>
-                        </td>
-                    </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Modal Footer Actions -->
-        <div class="modal-footer">
-            <div class="footer-left">
-                <button (click)="onExportJson()" class="btn-secondary" [disabled]="mappings().length === 0">
-                    <i class="fa-solid fa-download"></i>
-                    Export JSON
-                </button>
-
-                <label class="btn-secondary file-upload-label">
-                    <i class="fa-solid fa-upload"></i>
-                    Import JSON
-                    <input type="file" accept=".json" (change)="onImportFile($event)" style="display: none;" />
-                </label>
-            </div>
-
-            <div class="footer-right">
-                <button (click)="closeModal.emit()" class="btn-primary">
-                    Close
-                </button>
+                    <label class="import-export-btn">
+                        <i class="fa-solid fa-upload"></i> Import JSON
+                        <input type="file" accept=".json" (change)="onImportFile($event)" style="display: none;" />
+                    </label>
+                </div>
+                <div class="footer-right">
+                    <button type="button" class="btn btn-danger btn-sm" (click)="deleteMappings()" [disabled]="mappings().length === 0">
+                        <i class="fa-solid fa-trash"></i> Delete Mappings
+                    </button>
+                    <button type="button" class="btn btn-info btn-sm" (click)="closeModal()">Close</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
-}
