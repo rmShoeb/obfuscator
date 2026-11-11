@@ -2,10 +2,13 @@ export type ObfuscatorType = 'sql' | 'json' | 'text';
 
 export type TokenCategory = 'identifier' | 'string_literal' | 'numeric_literal' | 'comment' | 'keyword';
 
+export type IdentifierSubCategory = 'database' | 'table' | 'column' | 'generic';
+
 export interface TokenMapping {
     original: string;
     obfuscated: string;
     category: TokenCategory;
+    subCategory?: IdentifierSubCategory;
     count: number;
 }
 
@@ -19,6 +22,7 @@ export interface ObfuscationResult {
 export interface ImportResult {
     success: boolean;
     count: number;
+    dialect?: string;
     error?: string;
 }
 

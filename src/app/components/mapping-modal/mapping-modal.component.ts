@@ -1,35 +1,44 @@
-import { Component, input, output, signal, computed, inject } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TokenMapping, TokenCategory } from '../../models/obfuscator.interface';
+import { TokenMapping } from '../../models/obfuscator.interface';
 import { SqlObfuscatorService } from '../../services/sql-obfuscator.service';
 
 @Component({
     selector: 'app-mapping-modal',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [
+        CommonModule,
+        FormsModule
+    ],
     templateUrl: './mapping-modal.component.html',
     styleUrl: './mapping-modal.component.css',
 })
 export class MappingModalComponent {
-    readonly isOpen = input<boolean>(false);
     readonly mappings = input<TokenMapping[]>([]);
-    readonly closeModal = output<void>();
-    readonly triggerClearAll = output<void>();
+    readonly selectedFilter = signal<string>('all');
     private sqlService = inject(SqlObfuscatorService);
-
-    searchQuery = '';
-    readonly selectedCategory = signal<'all' | TokenCategory>('all');
-    readonly alertMessage = signal<string>('');
-    readonly alertType = signal<'success' | 'error'>('success');
+    readonly isModalOpen = signal<boolean>(false);
+    readonly searchQuery = signal<string>('');
+    readonly activeDialect = this.sqlService.currentDialect;
 
     readonly filteredMappings = computed(() => {
         let list = this.mappings();
-        const query = this.searchQuery.trim().toLowerCase();
-        const cat = this.selectedCategory();
+        const query = this.searchQuery().trim().toLowerCase();
+        const filter = this.selectedFilter();
 
-        if (cat !== 'all') {
-            list = list.filter(m => m.category === cat);
+        if (filter !== 'all') {
+            if (filter === 'database') {
+                list = list.filter(m => m.subCategory === 'database');
+            } else if (filter === 'table') {
+                list = list.filter(m => m.subCategory === 'table');
+            } else if (filter === 'column') {
+                list = list.filter(m => m.subCategory === 'column');
+            } else if (filter === 'string_literal') {
+                list = list.filter(m => m.category === 'string_literal');
+            } else if (filter === 'generic') {
+                list = list.filter(m => m.category === 'identifier' && (!m.subCategory || m.subCategory === 'generic'));
+            }
         }
 
         if (query) {
@@ -42,18 +51,27 @@ export class MappingModalComponent {
         return list;
     });
 
-    onExportJson(): void {
-        const json = this.sqlService.exportMappings();
-        const blob = new Blob([json], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `obfuscator-mappings-${new Date().toISOString().slice(0, 10)}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
+    openModal(): void {
+        this.isModalOpen.set(true);
+    }
 
-        this.alertType.set('success');
-        this.alertMessage.set('Mapping dictionary JSON exported successfully.');
+    closeModal(): void {
+        this.isModalOpen.set(false);
+    }
+
+    onExportJson(): void {
+        try {
+            const json = this.sqlService.exportMappings();
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `obfuscator-mappings-${this.activeDialect()}-${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("An error occurred during export:", error);
+        }
     }
 
     onImportFile(event: Event): void {
@@ -66,12 +84,8 @@ export class MappingModalComponent {
         reader.onload = (e) => {
             const content = e.target?.result as string;
             const res = this.sqlService.importMappings(content);
-            if (res.success) {
-                this.alertType.set('success');
-                this.alertMessage.set(`Successfully imported ${res.count} token mappings!`);
-            } else {
-                this.alertType.set('error');
-                this.alertMessage.set(res.error || 'Failed to import JSON file.');
+            if (!res.success) {
+                console.error(res.error || 'Failed to import JSON file.');
             }
             inputEl.value = '';
         };
@@ -79,11 +93,7 @@ export class MappingModalComponent {
         reader.readAsText(file);
     }
 
-    onClearAllGlobal(): void {
-        if (confirm('Clear both code panes and reset all token mappings? Selected options will remain unchanged.')) {
-            this.triggerClearAll.emit();
-            this.alertType.set('success');
-            this.alertMessage.set('Cleared code panes and token mappings.');
-        }
+    deleteMappings(): void {
+        this.sqlService.clearMappings();
     }
 }

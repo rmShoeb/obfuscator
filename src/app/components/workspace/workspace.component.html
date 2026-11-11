@@ -1,54 +1,52 @@
-<div class="workspace-container">
-    <app-options-bar
-        (optionsChange)="sqlOptions.set($event)"
-        (clearAll)="onClearAll()"
-    ></app-options-bar>
+<div class="container-fluid px-3 px-lg-4">
+    <app-options-bar (optionsChange)="sqlOptions.set($event)" (clearAll)="onClearAll()"></app-options-bar>
 
-    <div class="split-workspace">
-        <div class="panel-wrapper">
+    <div class="row g-3 align-items-stretch">
+        <!-- Original Code Panel -->
+        <div class="col-12 col-lg-5">
             <app-code-panel
-                title="Original Code"
-                placeholder="Paste or type original code here..."
+                title="Original SQL"
+                placeholder="Paste or type original SQL code here..."
                 [(code)]="originalCode"
             ></app-code-panel>
         </div>
 
-        <div class="action-column">
-            <button (click)="runObfuscate()" class="btn-action btn-obfuscate">
-                <div class="btn-inner">
-                    <span class="action-text">Obfuscate</span>
-                    <i class="fa-solid fa-arrow-right-long"></i>
-                </div>
-            </button>
+        <!-- Center Controls Column -->
+        <div class="col-12 col-lg-2 d-flex flex-column justify-content-center align-items-center py-2">
+            <div class="d-flex flex-column align-items-center gap-3 w-100">
+                <button (click)="runObfuscate()" class="btn-action btn-obfuscate w-100" title="Obfuscate original SQL to placeholder tokens">
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                        <span class="fw-bold">Obfuscate</span>
+                        <i class="fa-solid fa-arrow-right-long d-none d-lg-inline"></i>
+                        <i class="fa-solid fa-arrow-down-long d-lg-none"></i>
+                    </div>
+                </button>
 
-            <button (click)="runDeobfuscate()" class="btn-action btn-deobfuscate">
-                <div class="btn-inner">
-                    <i class="fa-solid fa-arrow-left-long"></i>
-                    <span class="action-text">Deobfuscate</span>
-                </div>
-            </button>
+                <button (click)="runDeobfuscate()" class="btn-action btn-deobfuscate w-100" title="De-obfuscate masked SQL back to original identifiers">
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                        <i class="fa-solid fa-arrow-left-long d-none d-lg-inline"></i>
+                        <i class="fa-solid fa-arrow-up-long d-lg-none"></i>
+                        <span class="fw-bold">Deobfuscate</span>
+                    </div>
+                </button>
 
-            <div class="action-meta">
-                <span class="meta-label">Session Mapping:</span>
-                <span class="meta-val">{{ activeMappings().length }} Keys</span>
+                <button type="button" class="btn btn-outline-info btn-sm w-100 d-flex align-items-center justify-content-center gap-2 py-2" (click)="openModal()">
+                    <i class="fa-solid fa-book"></i>
+                    <span>Dictionary</span>
+                    <span class="badge bg-info text-dark rounded-pill">{{ activeMappings().length }}</span>
+                </button>
             </div>
-
-            <button (click)="isModalOpen.set(true)" class="btn-mapping">See Mapping</button>
         </div>
 
-        <div class="panel-wrapper">
-            <app-code-panel title="Obfuscated Code"
-                placeholder="Obfuscated code output will appear here. You can also paste external obfuscated code to de-obfuscate..."
+        <!-- Obfuscated Code Panel -->
+        <div class="col-12 col-lg-5">
+            <app-code-panel
+                title="Obfuscated SQL"
+                placeholder="Obfuscated code output will appear here. You can also paste external obfuscated SQL to de-obfuscate..."
                 [(code)]="obfuscatedCode"
             ></app-code-panel>
         </div>
     </div>
-
-    <!-- Mapping Dictionary Dialog Modal -->
-    <app-mapping-modal
-        [isOpen]="isModalOpen()"
-        [mappings]="activeMappings()"
-        (closeModal)="isModalOpen.set(false)"
-        (triggerClearAll)="onClearAll()"
-    ></app-mapping-modal>
 </div>
+
+<app-mapping-modal [mappings]="activeMappings()"></app-mapping-modal>

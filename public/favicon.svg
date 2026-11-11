@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070b14"/>
+      <stop offset="50%" stop-color="#0b1120"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <!-- Glowing Rim Gradient -->
+    <linearGradient id="rimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="50%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+
+    <!-- Shield Fill Gradient -->
+    <linearGradient id="shieldInner" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#6366f1" stop-opacity="0.04"/>
+    </linearGradient>
+
+    <!-- Left Code Bracket Gradient -->
+    <linearGradient id="codeCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+
+    <!-- Right Code Bracket Gradient -->
+    <linearGradient id="codePurple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+
+    <!-- Mask Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Base Rounded Container -->
+  <rect x="4" y="4" width="120" height="120" rx="28" fill="url(#bgGrad)" stroke="url(#rimGrad)" stroke-width="2.5"/>
+
+  <!-- Protective Security Shield -->
+  <path d="M 64 18 
+           L 98 30 
+           C 98 70, 80 98, 64 109 
+           C 48 98, 28 70, 28 30 
+           Z" 
+        fill="url(#shieldInner)" 
+        stroke="url(#rimGrad)" 
+        stroke-width="3" 
+        stroke-linejoin="round" 
+        stroke-linecap="round"/>
+
+  <!-- Left Code Bracket: < -->
+  <path d="M 52 48 L 40 64 L 52 80" 
+        fill="none" 
+        stroke="url(#codeCyan)" 
+        stroke-width="6" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"/>
+
+  <!-- Right Code Bracket: > -->
+  <path d="M 76 48 L 88 64 L 76 80" 
+        fill="none" 
+        stroke="url(#codePurple)" 
+        stroke-width="6" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"/>
+
+  <!-- Center Obfuscation Redaction / Mask Pill -->
+  <rect x="54" y="55" width="20" height="18" rx="5" 
+        fill="#0b1120" 
+        stroke="#38bdf8" 
+        stroke-width="2" 
+        stroke-dasharray="3,2"/>
+
+  <!-- Masked Asterisk / Token Placeholder -->
+  <!-- Horizontal bar -->
+  <line x1="58" y1="64" x2="70" y2="64" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Diagonal 1 -->
+  <line x1="60" y1="59" x2="68" y2="69" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+  <!-- Diagonal 2 -->
+  <line x1="60" y1="69" x2="68" y2="59" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Center Glowing Core Dot -->
+  <circle cx="64" cy="64" r="1.5" fill="#ffffff" filter="url(#glow)"/>
+
+  <!-- Privacy Security Indicator Dot at Top Shield Peak -->
+  <circle cx="64" cy="24" r="3" fill="#10b981" filter="url(#glow)"/>
+</svg>
+

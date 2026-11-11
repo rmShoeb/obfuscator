@@ -1,45 +1,59 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, output, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { SqlDialect, SqlObfuscationOptions, SUPPORTED_SQL_DIALECTS, DEFAULT_SQL_OPTIONS } from '../../models/sql-obfuscator.model';
+import { FormsModule } from '@angular/forms';
+import {
+    SqlDialect,
+    SqlObfuscationOptions,
+    DEFAULT_SQL_OPTIONS
+} from '../../models/sql-obfuscator.model';
 import { SUPPORTED_LANGUAGES, LanguageOption } from '../../models/language-config';
+import { SqlObfuscatorService } from '../../services/sql-obfuscator.service';
 
 @Component({
     selector: 'app-options-bar',
     standalone: true,
     imports: [
         CommonModule,
-        MatCheckboxModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatInputModule,
+        FormsModule
     ],
     templateUrl: './options-bar.component.html',
-    styleUrl: './options-bar.component.css',
+    styleUrl: './options-bar.component.css'
 })
 export class OptionsBarComponent {
+    private sqlService = inject(SqlObfuscatorService);
+
     readonly optionsChange = output<SqlObfuscationOptions>();
     readonly clearAll = output<void>();
 
+    // Engine options
     readonly languageOptions = signal<LanguageOption[]>(SUPPORTED_LANGUAGES);
-    selectedOption = signal<string>(this.languageOptions()[0].id);
+    readonly selectedEngine = signal<string>(this.languageOptions()[0].id);
 
-    onOptionChange(event: Event): void {
-        const val = (event.target as HTMLSelectElement).value;
+    // SQL Dialects from service
+    readonly dialects = this.sqlService.supportedDialects;
+    readonly selectedDialect = this.sqlService.currentDialect;
+
+    // Toggles
+    readonly maskLiterals = signal<boolean>(DEFAULT_SQL_OPTIONS.maskLiterals);
+    readonly maskIdentifiers = signal<boolean>(DEFAULT_SQL_OPTIONS.maskIdentifiers);
+    readonly stripComments = signal<boolean>(DEFAULT_SQL_OPTIONS.stripComments);
+
+    onDialectChange(event: Event): void {
+        const val = (event.target as HTMLSelectElement).value as SqlDialect;
+        this.sqlService.setDialect(val);
+        this.emitOptions();
     }
-    // readonly dialects = SUPPORTED_SQL_DIALECTS;
 
-    // onDialectChange(event: Event): void {
-    //     const val = (event.target as HTMLSelectElement).value as SqlDialect;
-    //     this.optionsChange.emit({
-    //         ...this.options(),
-    //         dialect: val
-    //     });
-    // }
+    onToggleChange(): void {
+        this.emitOptions();
+    }
+
+    private emitOptions(): void {
+        this.optionsChange.emit({
+            dialect: this.selectedDialect(),
+            maskLiterals: this.maskLiterals(),
+            maskIdentifiers: this.maskIdentifiers(),
+            stripComments: this.stripComments()
+        });
+    }
 }
