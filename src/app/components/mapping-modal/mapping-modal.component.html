@@ -1,87 +1,118 @@
-<div class="modal" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-    [style]="{'display': isModalOpen() ? 'block' : 'none'}" [class.show]="isModalOpen()">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5 header-title" id="staticBackdropLabel">Token Mapping Dictionary</h1>
-                <span class="count-chip">{{ mappings().length }} Tokens Registered</span>
-            </div>
+<!-- Modal Backdrop -->
+@if (isModalOpen()) {
+<div class="modal-backdrop fade show"></div>
+}
 
-            <div class="modal-body modal-background">
-                <div class="row g-2 justify-content-center">
-                    <div class="col-7">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
-                            <input type="text" [(ngModel)]="searchQuery" class="form-control" placeholder="Search token or placeholder...">
-                        </div>
-                    </div>
-                    <div class="col-1">
-                        <button type="button" class="btn btn-outline-info btn-sm w-100" (click)="selectedCategory.set('all')" [class.active]="selectedCategory() === 'all'">All</button>
-                    </div>
-                    <div class="col-2">
-                        <button type="button" class="btn btn-outline-info btn-sm w-100" (click)="selectedCategory.set('identifier')" [class.active]="selectedCategory() === 'identifier'">Identifiers</button>
-                    </div>
-                    <div class="col-2">
-                        <button type="button" class="btn btn-outline-info btn-sm w-100" (click)="selectedCategory.set('string_literal')" [class.active]="selectedCategory() === 'string_literal'">String Literals</button>
-                    </div>
-                    <div class="col-12">
-                        <div class="table-container">
-                            <table class="mapping-table">
-                                <thead>
-                                    <tr>
-                                        <th>Category</th>
-                                        <th>Original Token</th>
-                                        <th>Obfuscated Placeholder</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @for (item of filteredMappings(); track item.original + item.obfuscated) {
-                                    <tr>
-                                        <td>
-                                            <span class="category-badge" [class]="'cat-' + item.category">
-                                                {{ item.category === 'string_literal' ? 'String' : 'Identifier' }}
-                                            </span>
-                                        </td>
-                                        <td class="text-original">{{ item.original }}</td>
-                                        <td class="text-obfuscated">{{ item.obfuscated }}</td>
-                                    </tr>
-                                    } @empty {
-                                    <tr>
-                                        <td colspan="3" class="empty-state">
-                                            <svg class="empty-icon" viewBox="0 0 24 24" fill="none"
-                                                stroke="currentColor" stroke-width="2">
-                                                <circle cx="12" cy="12" r="10" />
-                                                <path d="M16 16s-1.5-2-4-2-4 2-4 2" />
-                                                <line x1="9" y1="9" x2="9.01" y2="9" />
-                                                <line x1="15" y1="9" x2="15.01" y2="9" />
-                                            </svg>
-                                            <p>No token mappings found matching current criteria.</p>
-                                        </td>
-                                    </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+<div class="modal fade" [class.show]="isModalOpen()" [style.display]="isModalOpen() ? 'block' : 'none'" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content bg-dark text-light border-secondary border-opacity-50 shadow-lg">
+            <!-- Modal Header -->
+            <div class="modal-header bg-secondary bg-opacity-25 border-secondary border-opacity-25 py-3 px-4">
+                <div class="d-flex align-items-center gap-2">
+                    <h5 class="modal-title mb-0 fw-bold text-light">
+                        <i class="fa-solid fa-book-bookmark text-info me-2"></i>Token Mapping Dictionary
+                    </h5>
+                    <span class="badge bg-info text-dark text-uppercase">{{ activeDialect() }}</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-secondary bg-opacity-75">{{ mappings().length }} Tokens</span>
+                    <button type="button" class="btn-close btn-close-white" (click)="closeModal()" aria-label="Close"></button>
                 </div>
             </div>
 
-            <div class="modal-footer">
-                <div class="footer-left">
-                    <button (click)="onExportJson()" class="import-export-btn" [disabled]="mappings().length === 0">
-                        <i class="fa-solid fa-download"></i> Export JSON
+            <!-- Modal Body -->
+            <div class="modal-body p-3 p-md-4">
+                <!-- Search and Filters -->
+                <div class="row g-2 mb-3">
+                    <div class="col-12 col-md-6">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-dark text-secondary border-secondary">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <input
+                                type="text"
+                                [ngModel]="searchQuery()"
+                                (ngModelChange)="searchQuery.set($event)"
+                                class="form-control bg-dark text-light border-secondary"
+                                placeholder="Search token or placeholder..."
+                            />
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 d-flex flex-wrap gap-1 justify-content-md-end">
+                        <button type="button" class="btn btn-sm" [class.btn-info]="selectedFilter() === 'all'" [class.btn-outline-secondary]="selectedFilter() !== 'all'" (click)="selectedFilter.set('all')">All</button>
+                        <button type="button" class="btn btn-sm" [class.btn-primary]="selectedFilter() === 'database'" [class.btn-outline-secondary]="selectedFilter() !== 'database'" (click)="selectedFilter.set('database')">Databases</button>
+                        <button type="button" class="btn btn-sm" [class.btn-info]="selectedFilter() === 'table'" [class.btn-outline-secondary]="selectedFilter() !== 'table'" (click)="selectedFilter.set('table')">Tables</button>
+                        <button type="button" class="btn btn-sm" [class.btn-success]="selectedFilter() === 'column'" [class.btn-outline-secondary]="selectedFilter() !== 'column'" (click)="selectedFilter.set('column')">Columns</button>
+                        <button type="button" class="btn btn-sm" [class.btn-warning]="selectedFilter() === 'string_literal'" [class.btn-outline-secondary]="selectedFilter() !== 'string_literal'" (click)="selectedFilter.set('string_literal')">Strings</button>
+                        <button type="button" class="btn btn-sm" [class.btn-secondary]="selectedFilter() === 'generic'" [class.btn-outline-secondary]="selectedFilter() !== 'generic'" (click)="selectedFilter.set('generic')">Other</button>
+                    </div>
+                </div>
+
+                <!-- Table Container -->
+                <div class="table-responsive border border-secondary border-opacity-25 rounded-3" style="max-height: 380px;">
+                    <table class="table table-dark table-hover table-striped mb-0 align-middle">
+                        <thead class="table-secondary text-uppercase small text-secondary position-sticky top-0" style="z-index: 1;">
+                            <tr>
+                                <th scope="col" style="width: 140px;">Category</th>
+                                <th scope="col">Original Token</th>
+                                <th scope="col">Obfuscated Placeholder</th>
+                                <th scope="col" class="text-end" style="width: 80px;">Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (item of filteredMappings(); track item.original + item.obfuscated) {
+                            <tr>
+                                <td>
+                                    @if (item.subCategory === 'database') {
+                                    <span class="badge bg-primary">Database</span>
+                                    } @else if (item.subCategory === 'table') {
+                                    <span class="badge bg-info text-dark">Table</span>
+                                    } @else if (item.subCategory === 'column') {
+                                    <span class="badge bg-success">Column</span>
+                                    } @else if (item.category === 'string_literal') {
+                                    <span class="badge bg-warning text-dark">String</span>
+                                    } @else {
+                                    <span class="badge bg-secondary">Identifier</span>
+                                    }
+                                </td>
+                                <td><code class="text-info">{{ item.original }}</code></td>
+                                <td><code class="text-success">{{ item.obfuscated }}</code></td>
+                                <td class="text-end text-secondary">{{ item.count }}</td>
+                            </tr>
+                            } @empty {
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-secondary">
+                                    <i class="fa-regular fa-folder-open fa-2x mb-2 d-block opacity-50"></i>
+                                    <span>No token mappings found matching the current criteria.</span>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer bg-secondary bg-opacity-10 border-secondary border-opacity-25 py-2 px-4 d-flex justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" (click)="onExportJson()" class="btn btn-sm btn-outline-light d-flex align-items-center gap-1" [disabled]="mappings().length === 0">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Export JSON</span>
                     </button>
 
-                    <label class="import-export-btn">
-                        <i class="fa-solid fa-upload"></i> Import JSON
+                    <label class="btn btn-sm btn-outline-info d-flex align-items-center gap-1 mb-0" style="cursor: pointer;">
+                        <i class="fa-solid fa-upload"></i>
+                        <span>Import JSON</span>
                         <input type="file" accept=".json" (change)="onImportFile($event)" style="display: none;" />
                     </label>
                 </div>
-                <div class="footer-right">
-                    <button type="button" class="btn btn-danger btn-sm" (click)="deleteMappings()" [disabled]="mappings().length === 0">
-                        <i class="fa-solid fa-trash"></i> Delete Mappings
+
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1" (click)="deleteMappings()" [disabled]="mappings().length === 0">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>Delete Mappings</span>
                     </button>
-                    <button type="button" class="btn btn-info btn-sm" (click)="closeModal()">Close</button>
+                    <button type="button" class="btn btn-sm btn-secondary" (click)="closeModal()">Close</button>
                 </div>
             </div>
         </div>

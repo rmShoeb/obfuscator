@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TokenCategory, TokenMapping } from '../../models/obfuscator.interface';
+import { TokenMapping } from '../../models/obfuscator.interface';
 import { SqlObfuscatorService } from '../../services/sql-obfuscator.service';
 
 @Component({
@@ -16,18 +16,29 @@ import { SqlObfuscatorService } from '../../services/sql-obfuscator.service';
 })
 export class MappingModalComponent {
     readonly mappings = input<TokenMapping[]>([]);
-    readonly selectedCategory = signal<'all' | TokenCategory>('all');
+    readonly selectedFilter = signal<string>('all');
     private sqlService = inject(SqlObfuscatorService);
-    isModalOpen = signal<boolean>(false);
-    searchQuery = signal<string>('');
+    readonly isModalOpen = signal<boolean>(false);
+    readonly searchQuery = signal<string>('');
+    readonly activeDialect = this.sqlService.currentDialect;
 
     readonly filteredMappings = computed(() => {
         let list = this.mappings();
         const query = this.searchQuery().trim().toLowerCase();
-        const cat = this.selectedCategory();
+        const filter = this.selectedFilter();
 
-        if (cat !== 'all') {
-            list = list.filter(m => m.category === cat);
+        if (filter !== 'all') {
+            if (filter === 'database') {
+                list = list.filter(m => m.subCategory === 'database');
+            } else if (filter === 'table') {
+                list = list.filter(m => m.subCategory === 'table');
+            } else if (filter === 'column') {
+                list = list.filter(m => m.subCategory === 'column');
+            } else if (filter === 'string_literal') {
+                list = list.filter(m => m.category === 'string_literal');
+            } else if (filter === 'generic') {
+                list = list.filter(m => m.category === 'identifier' && (!m.subCategory || m.subCategory === 'generic'));
+            }
         }
 
         if (query) {
@@ -55,12 +66,11 @@ export class MappingModalComponent {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `obfuscator-mappings-${new Date().toISOString().slice(0, 10)}.json`;
+            a.download = `obfuscator-mappings-${this.activeDialect()}-${new Date().toISOString().slice(0, 10)}.json`;
             a.click();
             URL.revokeObjectURL(url);
         } catch (error) {
-            console.error("An error occurred:", error);
-            // TODO: replace this later with alerting modal
+            console.error("An error occurred during export:", error);
         }
     }
 
@@ -76,7 +86,6 @@ export class MappingModalComponent {
             const res = this.sqlService.importMappings(content);
             if (!res.success) {
                 console.error(res.error || 'Failed to import JSON file.');
-                // TODO: replace this later with alerting modal
             }
             inputEl.value = '';
         };

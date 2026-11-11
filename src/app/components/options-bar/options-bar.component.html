@@ -1,51 +1,80 @@
-<div class="options-bar shadow-sm">
-    <div class="options-left">
-        <!-- Dialect Selector -->
-        <div class="control-group">
-            <label class="control-label">
-                <i class="fa-solid fa-code"></i> Language:
-            </label>
-            <div class="select-box">
-                <select [(ngModel)]="selectedOption" class="styled-select">
+<div class="card bg-dark border-secondary border-opacity-25 shadow-sm p-3 mb-3">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <!-- Controls Left -->
+        <div class="d-flex flex-wrap align-items-center gap-3">
+            <!-- Engine Selector -->
+            <div class="d-flex align-items-center gap-2">
+                <label class="form-label mb-0 text-secondary small fw-bold">Engine:</label>
+                <select [ngModel]="selectedEngine()" (ngModelChange)="selectedEngine.set($event)" class="form-select form-select-sm bg-dark text-light border-secondary border-opacity-50" style="width: auto;">
                     @for (option of languageOptions(); track option.id) {
                     <option [value]="option.id" [disabled]="option.disabled">{{ option.label }}</option>
                     }
                 </select>
             </div>
+
+            <!-- SQL Flavor Selector (Requirements 2, 4) -->
+            <div class="d-flex align-items-center gap-2">
+                <label class="form-label mb-0 text-secondary small fw-bold">
+                    <i class="fa-solid fa-database text-info me-1"></i>Flavor:
+                </label>
+                <select [value]="selectedDialect()" (change)="onDialectChange($event)" class="form-select form-select-sm bg-dark text-light border-secondary border-opacity-50" style="min-width: 170px;">
+                    @for (flavor of dialects(); track flavor.id) {
+                    <option [value]="flavor.id">{{ flavor.name }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="vr bg-secondary opacity-50 d-none d-md-block" style="height: 24px;"></div>
+
+            <!-- Transformation Toggles -->
+            <div class="d-flex flex-wrap align-items-center gap-3">
+                <div class="form-check form-check-inline mb-0">
+                    <input
+                        class="form-check-input bg-dark border-secondary"
+                        type="checkbox"
+                        id="toggleLiterals"
+                        [ngModel]="maskLiterals()"
+                        (ngModelChange)="maskLiterals.set($event); onToggleChange()"
+                    />
+                    <label class="form-check-label text-light small" for="toggleLiterals" title="Mask string literals with STR_x">
+                        Literals
+                    </label>
+                </div>
+
+                <div class="form-check form-check-inline mb-0">
+                    <input
+                        class="form-check-input bg-dark border-secondary"
+                        type="checkbox"
+                        id="toggleIdentifiers"
+                        [ngModel]="maskIdentifiers()"
+                        (ngModelChange)="maskIdentifiers.set($event); onToggleChange()"
+                    />
+                    <label class="form-check-label text-light small" for="toggleIdentifiers" title="Mask database, table, and column names">
+                        Identifiers
+                    </label>
+                </div>
+
+                <div class="form-check form-check-inline mb-0">
+                    <input
+                        class="form-check-input bg-dark border-secondary"
+                        type="checkbox"
+                        id="toggleComments"
+                        [ngModel]="stripComments()"
+                        (ngModelChange)="stripComments.set($event); onToggleChange()"
+                    />
+                    <label class="form-check-label text-light small" for="toggleComments" title="Remove inline and block comments from output">
+                        Strip Comments
+                    </label>
+                </div>
+            </div>
         </div>
 
-        <div class="divider"></div>
-
-        <!-- Transformation Toggles -->
-        <!-- <div class="toggles-group">
-            <label class="checkbox-label" title="Mask string literals with STR_x placeholders">
-                <input type="checkbox" [checked]="options().maskLiterals" (change)="toggleOption('maskLiterals')"
-                    class="custom-checkbox" />
-                <span class="checkbox-custom"></span>
-                <span class="toggle-text">Literals</span>
-            </label>
-
-            <label class="checkbox-label"
-                title="Mask table, column, and identifier names with tbl_x and col_x placeholders">
-                <input type="checkbox" [checked]="options().maskIdentifiers" (change)="toggleOption('maskIdentifiers')"
-                    class="custom-checkbox" />
-                <span class="checkbox-custom"></span>
-                <span class="toggle-text">Identifiers</span>
-            </label>
-
-            <label class="checkbox-label" title="Strip single-line and block comments from output">
-                <input type="checkbox" [checked]="options().stripComments" (change)="toggleOption('stripComments')"
-                    class="custom-checkbox" />
-                <span class="checkbox-custom"></span>
-                <span class="toggle-text">Strip Comments</span>
-            </label>
-        </div> -->
-    </div>
-
-    <div class="options-right">
-        <!-- Global Clear All Button -->
-        <button (click)="clearAll.emit()" class="btn-clear-all">
-            <i class="fa-solid fa-trash-can"></i> Clear All
-        </button>
+        <!-- Action Right -->
+        <div class="d-flex align-items-center">
+            <button (click)="clearAll.emit()" type="button" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2">
+                <i class="fa-solid fa-trash-can"></i>
+                <span>Clear All</span>
+            </button>
+        </div>
     </div>
 </div>

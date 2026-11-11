@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CodePanelComponent } from '../code-panel/code-panel.component';
 import { MappingModalComponent } from '../mapping-modal/mapping-modal.component';
@@ -24,7 +24,8 @@ export class WorkspaceComponent {
     readonly originalCode = signal<string>('');
     readonly obfuscatedCode = signal<string>('');
     readonly sqlOptions = signal<SqlObfuscationOptions>(DEFAULT_SQL_OPTIONS);
-    readonly isModalOpen = signal<boolean>(false);
+
+    mappingModal = viewChild.required(MappingModalComponent);
 
     readonly activeMappings = this.sqlService.mappings;
 
@@ -49,5 +50,9 @@ export class WorkspaceComponent {
         this.obfuscatedCode.set('');
         this.sqlService.clearMappings();
         // Note: sqlOptions is NOT changed, preserving user-selected dialect & toggles
+    }
+
+    openModal(): void {
+        this.mappingModal().openModal();
     }
 }

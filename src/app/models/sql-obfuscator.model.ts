@@ -1,10 +1,12 @@
-export type SqlDialect = 'auto' | 'postgres' | 'mysql' | 'oracle' | 'tsql' | 'sqlite' | 'ansi';
+import { TokenMapping } from './obfuscator.interface';
+
+export type SqlDialect = 'ansi' | 'mysql' | 'postgres' | 'tsql' | 'oracle' | 'sqlite';
 
 export interface SqlDialectInfo {
     id: SqlDialect;
     name: string;
     description: string;
-    quoteChar: string; // ` for mysql, [ ] for tsql, " for postgres/oracle/ansi
+    quoteChar: string;
 }
 
 export interface SqlObfuscationOptions {
@@ -14,19 +16,27 @@ export interface SqlObfuscationOptions {
     stripComments: boolean;
 }
 
+export const DEFAULT_SQL_DIALECT: SqlDialect = 'ansi';
+
 export const SUPPORTED_SQL_DIALECTS: SqlDialectInfo[] = [
-    { id: 'auto', name: 'Auto-Detect', description: 'Automatically infer dialect syntax rules', quoteChar: 'Auto' },
-    { id: 'postgres', name: 'PostgreSQL', description: 'Double quotes "tbl", dollar string literals $$lit$$', quoteChar: '"' },
-    { id: 'mysql', name: 'MySQL / MariaDB', description: 'Backticks `tbl`, hash comments # comment', quoteChar: '`' },
-    { id: 'tsql', name: 'SQL Server (T-SQL)', description: 'Brackets [tbl], N\'unicode\' strings', quoteChar: '[' },
-    { id: 'oracle', name: 'Oracle PL/SQL', description: 'Double quotes "tbl", Q\'string\' syntax', quoteChar: '"' },
-    { id: 'sqlite', name: 'SQLite', description: 'Double quotes "tbl", backticks `tbl`, brackets [tbl]', quoteChar: '"' },
-    { id: 'ansi', name: 'ANSI SQL Standard', description: 'Standard double quote identifiers and single quote strings', quoteChar: '"' }
+    { id: 'ansi', name: 'ANSI SQL (Default)', description: 'Standard ANSI SQL syntax ("ident" and \'literal\')', quoteChar: '"' },
+    { id: 'mysql', name: 'MySQL / MariaDB', description: 'Backticks `tbl`, hash comments #, backslash escapes', quoteChar: '`' },
+    { id: 'postgres', name: 'PostgreSQL', description: 'Double quotes "tbl", dollar-quotes $$lit$$, E\'escape\' strings', quoteChar: '"' },
+    { id: 'tsql', name: 'SQL Server (T-SQL)', description: 'Brackets [tbl], N\'unicode\' strings, TOP / APPLY', quoteChar: '[' },
+    { id: 'oracle', name: 'Oracle PL/SQL', description: 'Double quotes "tbl", Q\'string\' syntax, ROWNUM', quoteChar: '"' },
+    { id: 'sqlite', name: 'SQLite', description: 'Double quotes "tbl", backticks `tbl`, brackets [tbl]', quoteChar: '"' }
 ];
 
 export const DEFAULT_SQL_OPTIONS: SqlObfuscationOptions = {
-    dialect: 'auto',
+    dialect: DEFAULT_SQL_DIALECT,
     maskLiterals: true,
     maskIdentifiers: true,
     stripComments: true
 };
+
+export interface ExportedMappingPackage {
+    version: string;
+    dialect: SqlDialect;
+    exportedAt: string;
+    mappings: TokenMapping[];
+}
